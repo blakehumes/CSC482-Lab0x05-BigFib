@@ -10,9 +10,10 @@ public class Main {
     public static void main(String[] args) {
 	MyBigInt a = new MyBigInt("925437632");
     MyBigInt b = new MyBigInt("4782561"); // 74612 * 990 results in leading 0
-    MyBigInt c = new MyBigInt("0");
-    MyBigInt d = new MyBigInt("4"); // 74612 * 990 results in leading 0
-    System.out.println(c.AbbreviatedValue());
+    MyBigInt c = new MyBigInt("8");
+    MyBigInt d = new MyBigInt("17"); // 74612 * 990 results in leading 0
+    d = d.Times(c);
+    System.out.println(d.AbbreviatedValue());
     resultTablesBigInt();
 
 
@@ -48,7 +49,7 @@ public class Main {
 
             //start = getCpuTime();
             start = System.nanoTime();
-            operand1.Plus(operand2);
+            operand1.Times(operand2);
 
             //stop = getCpuTime();
             stop = System.nanoTime();
@@ -250,20 +251,24 @@ class MyBigInt{
         return TimesSum;
     }
     MyBigInt Times(MyBigInt b){
-        MyBigInt a = new MyBigInt(this.value);
+        //MyBigInt a = new MyBigInt(this.value);
 
         MyBigInt TimesCurrent = new MyBigInt("");
         MyBigInt TimesSum = new MyBigInt("0");
-        MyBigInt resultC = new MyBigInt("");
-        int dA, dB, dC, carry = 0;
+        int dA, dB, dC, carry = 0, j, k = 0;
+        String c = "0".repeat(Math.max(this.value.length(),b.value.length())*2);
+        StringBuilder sb = new StringBuilder(c);
+        int aLength = this.value.length();
+        int bLength = b.value.length();
+        int cLength = c.length();
 
-        for(int i = a.value.length() - 1; i >=0; i--){
+        for(int i = aLength - 1; i >=0; i--){
             // Add zeroes for the place value of big int a at the i-th character
-            for(int z = a.value.length() - 1 - i; z > 0; z--)
-                TimesCurrent.value = "0" + TimesCurrent.value;
+            //for(int z = a.value.length() - 1 - i; z > 0; z--)
+              //  TimesCurrent.value = "0" + TimesCurrent.value;
 
-            for(int j = b.value.length() - 1; j >=0; j--){
-                dA = convertToInt(a.value.charAt(i));
+            for(j = bLength - 1; j >=0; j--){
+                dA = convertToInt(this.value.charAt(i));
                 dB = convertToInt(b.value.charAt(j));
                 dC = dA * dB + carry;
                 carry = 0;
@@ -272,21 +277,27 @@ class MyBigInt{
                     dC -= carry * 10;
                 }
                 // Prepend the result of the multiplication to the c string
-                TimesCurrent.value = convertToChar(dC) + TimesCurrent.value;
+                //TimesCurrent.value = convertToChar(dC) + TimesCurrent.value;
+                sb.setCharAt(cLength - 1 - (aLength - 1 - i) - k,convertToChar(dC));
+                k++;
             }
             if(carry > 0)
-                TimesCurrent.value = convertToChar(carry) + TimesCurrent.value;
+                //TimesCurrent.value = convertToChar(carry) + TimesCurrent.value;
+                sb.setCharAt(cLength - 1 - (aLength - 1 - i) - k,convertToChar(carry));
             carry = 0;
+            k = 0;
+            TimesCurrent.value = sb.toString();
             TimesSum = TimesSum.Plus(TimesCurrent);
             //BigInteger TS = new BigInteger(TimesSum.Value());
             //BigInteger TC = new BigInteger(TimesCurrent.Value());
             //TS = TS.add(TC);
             //TimesSum.value = TS.toString();
-            TimesCurrent.value = "";
+            //TimesCurrent.value = "";
+            sb = new StringBuilder(c);
 
         }
-        if(carry > 0)
-            TimesCurrent.value = convertToChar(carry) + TimesCurrent.value;
+        //if(carry > 0)
+          //  TimesCurrent.value = convertToChar(carry) + TimesCurrent.value;
 
         // Remove leading 0's while leaving at least 1 0
         // Source - Top comment: https://stackoverflow.com/questions/2800739/how-to-remove-leading-zeros-from-alphanumeric-text
@@ -299,7 +310,7 @@ class MyBigInt{
 
         // Prepend "0"s to the beginning of the value with the smaller digits
         // to make both values the same # of digits long
-        /*if(a.length() < b.length()){
+        if(a.length() < b.length()){
             int diff = b.length() - a.length();
 
             for(int i = 0; i < diff; i++)
@@ -310,7 +321,7 @@ class MyBigInt{
 
             for(int i = 0; i < diff; i++)
                 b = "0".concat(b);
-        }*/
+        }
 
         int carry = 0;
         int dA, dB, dC;
@@ -338,11 +349,11 @@ class MyBigInt{
             sb.setCharAt(i+1,convertToChar(carry));
 
         // Create big int from result string c
-        MyBigInt bigC = new MyBigInt(c);
+        MyBigInt bigC = new MyBigInt(sb.toString());
 
         // Remove leading 0's while leaving at least 1 0
         // Source - Top comment: https://stackoverflow.com/questions/2800739/how-to-remove-leading-zeros-from-alphanumeric-text
-        //bigC.value = bigC.value.replaceFirst("^0+(?!$)", "");
+        bigC.value = bigC.value.replaceFirst("^0+(?!$)", "");
 
         return bigC;
 
