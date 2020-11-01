@@ -22,7 +22,7 @@ public class Main {
 
     }
     public static void resultTablesBigInt(){
-        System.out.println("Addition");
+        System.out.println("Multiplication");
         System.out.format("%18s %18s %18s %18s %18s %18s",
                             "N(input size)", "X1(input value)", "X2(input value)",
                             "Time", "Doubling Ratio", "Expected 2x Ratio\n");
@@ -57,7 +57,7 @@ public class Main {
             times[N] = stop - start;
             System.out.format("%18s %18s %18s %18s %18.2f %18s",
                     N, operand1.AbbreviatedValue(), operand2.AbbreviatedValue(),
-                    times[N], (N >= 2) ? (float)times[N]/(float)times[N/2]: 0, "2\n");
+                    times[N], (N >= 2) ? (float)times[N]/(float)times[N/2]: 0, "4\n");
 
             sb1.setLength(0);
             sb2.setLength(0);
