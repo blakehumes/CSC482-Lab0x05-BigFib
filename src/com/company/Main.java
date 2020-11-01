@@ -310,18 +310,28 @@ class MyBigInt{
 
         // Prepend "0"s to the beginning of the value with the smaller digits
         // to make both values the same # of digits long
+        String zeroes = "0".repeat(Math.max(a.length() - b.length(),b.length() - a.length()));
+        //StringBuilder sbZeroes = new StringBuilder()
         if(a.length() < b.length()){
+            a = zeroes.concat(a);
+
+        }
+        else if(a.length() > b.length()){
+            b = zeroes.concat(b);
+        }
+
+        /*if(a.length() < b.length()){
             int diff = b.length() - a.length();
 
             for(int i = 0; i < diff; i++)
-                a = "0".concat(a);
+                a = "0" + a;
         }
         else if(a.length() > b.length()){
             int diff = a.length() - b.length();
 
             for(int i = 0; i < diff; i++)
-                b = "0".concat(b);
-        }
+                b = "0" + b;
+        }*/
 
         int carry = 0;
         int dA, dB, dC;
