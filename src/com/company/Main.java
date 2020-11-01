@@ -56,7 +56,7 @@ public class Main {
             times[N] = stop - start;
             System.out.format("%18s %18s %18s %18s %18.2f %18s",
                     N, operand1.AbbreviatedValue(), operand2.AbbreviatedValue(),
-                    times[N], (N >= 2) ? (float)times[N]/times[N/2]: 0, "2\n");
+                    times[N], (N >= 2) ? (float)times[N]/(float)times[N/2]: 0, "2\n");
 
             sb1.setLength(0);
             sb2.setLength(0);
@@ -290,7 +290,7 @@ class MyBigInt{
 
         // Remove leading 0's while leaving at least 1 0
         // Source - Top comment: https://stackoverflow.com/questions/2800739/how-to-remove-leading-zeros-from-alphanumeric-text
-        TimesSum.value = TimesSum.value.replaceFirst("^0+(?!$)", "");
+        //TimesSum.value = TimesSum.value.replaceFirst("^0+(?!$)", "");
         return TimesSum;
     }
     MyBigInt Plus(MyBigInt x){
@@ -299,7 +299,7 @@ class MyBigInt{
 
         // Prepend "0"s to the beginning of the value with the smaller digits
         // to make both values the same # of digits long
-        if(a.length() < b.length()){
+        /*if(a.length() < b.length()){
             int diff = b.length() - a.length();
 
             for(int i = 0; i < diff; i++)
@@ -310,14 +310,16 @@ class MyBigInt{
 
             for(int i = 0; i < diff; i++)
                 b = "0".concat(b);
-        }
+        }*/
 
         int carry = 0;
         int dA, dB, dC;
-        String c = "";
+        String c = "0".repeat(Math.max(a.length(),b.length())+1);
+        StringBuilder sb = new StringBuilder(c);
+        int i;
 
         // Iterate through the two values adding the i-th characters and carrying the remainder forward
-        for(int i = a.length() - 1; i >= 0; i--){
+        for(i = a.length() - 1; i >= 0; i--){
             dA = convertToInt(a.charAt(i));
             dB = convertToInt(b.charAt(i));
             dC = dA + dB + carry;
@@ -327,18 +329,20 @@ class MyBigInt{
                 dC -= 10;
             }
             // Prepend the result of the addition to the c string
-            c = convertToString(dC).concat(c);
+            //c = convertToString(dC).concat(c);
+            sb.setCharAt(i+1,convertToChar(dC));
         }
         // If the last addition from the above loop has a carry, prepend it
         if(carry > 0)
-            c = convertToString(carry).concat(c);
+            //c = convertToString(carry).concat(c);
+            sb.setCharAt(i+1,convertToChar(carry));
 
         // Create big int from result string c
         MyBigInt bigC = new MyBigInt(c);
 
         // Remove leading 0's while leaving at least 1 0
         // Source - Top comment: https://stackoverflow.com/questions/2800739/how-to-remove-leading-zeros-from-alphanumeric-text
-        bigC.value = bigC.value.replaceFirst("^0+(?!$)", "");
+        //bigC.value = bigC.value.replaceFirst("^0+(?!$)", "");
 
         return bigC;
 
