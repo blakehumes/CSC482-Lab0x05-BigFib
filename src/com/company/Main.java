@@ -12,14 +12,48 @@ public class Main {
     MyBigInt b = new MyBigInt("4782561"); // 74612 * 990 results in leading 0
     MyBigInt c = new MyBigInt("8");
     MyBigInt d = new MyBigInt("17"); // 74612 * 990 results in leading 0
-    d = d.Times(c);
-    System.out.println(d.AbbreviatedValue());
-    resultTablesBigInt();
+    resultTablesBigFib();
 
 
 
 
 
+    }
+    public static void resultTablesBigFib() {
+        System.out.println("FibMatrixBig");
+        System.out.format("%18s %18s %18s %18s %18s %18s %18s",
+                "N(input size)", "X(input value)", "fib(X)",
+                "Time", "10x Ratio","X Expected 10x Ratio", "N Expected 10x Ratio\n");
+
+        int maxN = 9999999;
+        MyBigInt operand1 = new MyBigInt("0");
+        MyBigInt operand2 = new MyBigInt("0");
+        MyBigInt result = new MyBigInt("0");
+        long[] times = new long[maxN];
+        long start = 0, stop = 0;
+        int x = 0;
+
+        for (int N = 1; N < maxN; N++) {
+
+            for(int i = 1; i <= 9; i++){
+                x = (int)Math.pow(10, N - 1) * i;
+                operand1 = new MyBigInt(String.valueOf(x));
+
+                // Take times and perform function
+                start = System.nanoTime();
+                result =  fibMatrixBig(operand1);
+                stop = System.nanoTime();
+
+                // Add time to time array and print out results from current round of testing
+                times[x] = stop - start;
+                System.out.format("%18s %18s %18s %18s %18.2f %18s %18s",
+                        N, operand1.AbbreviatedValue(), result.AbbreviatedValue(),
+                        times[x], (N >= 2) ? (float) times[x] / (float) times[x / 10] : 0,
+                        "100", "100\n");
+
+
+            }
+        }
     }
     public static void resultTablesBigInt(){
         System.out.println("Multiplication");
@@ -32,13 +66,12 @@ public class Main {
         int min = 1, max = 9, maxN = 9999999;
         MyBigInt operand1 = new MyBigInt("0");
         MyBigInt operand2 = new MyBigInt("0");
-        MyBigInt result = new MyBigInt("0");
         long[] times = new long[maxN];
         long start = 0, stop = 0;
 
         for(int N = 1; N < maxN; N = N * 2) {
             for (int i = 0; i < N; i++) {
-                //Fill array with random char between minV and maxV
+                //Fill array with random int between min and max
                 //Used top comment for random number generator https://stackoverflow.com/questions/363681/how-do-i-generate-random-integers-within-a-specific-range-in-java
                 sb1.append(ThreadLocalRandom.current().nextInt(min, max));
                 sb2.append(ThreadLocalRandom.current().nextInt(min, max));
@@ -46,19 +79,18 @@ public class Main {
             operand1 = new MyBigInt(sb1.toString());
             operand2 = new MyBigInt(sb2.toString());
 
-
-            //start = getCpuTime();
+            // Take times and perform function
             start = System.nanoTime();
             operand1.Times(operand2);
-
-            //stop = getCpuTime();
             stop = System.nanoTime();
 
+            // Add time to time array and print out results from current round of testing
             times[N] = stop - start;
             System.out.format("%18s %18s %18s %18s %18.2f %18s",
                     N, operand1.AbbreviatedValue(), operand2.AbbreviatedValue(),
                     times[N], (N >= 2) ? (float)times[N]/(float)times[N/2]: 0, "4\n");
 
+            // Clear Stringbuilders
             sb1.setLength(0);
             sb2.setLength(0);
         }
@@ -105,31 +137,6 @@ public class Main {
         // This is a slight variation from the notes, but the general idea is the same
         return resultMatrix[0][1];
     }
-    public static MyBigInt[][] matrixMult2(MyBigInt[][] x, MyBigInt[][] y){
-        BigInteger[][] c = new BigInteger[2][2];
-        BigInteger[][] a = {
-                {new BigInteger(x[0][0].Value()),new BigInteger(x[0][1].Value())},
-                {new BigInteger(x[1][0].Value()),new BigInteger(x[1][1].Value())}
-        };
-        BigInteger[][] b = {
-                {new BigInteger(y[0][0].Value()),new BigInteger(y[0][1].Value())},
-                {new BigInteger(y[1][0].Value()),new BigInteger(y[1][1].Value())}
-        };
-
-
-        // 2x2 Matrix Multiplication
-        c[0][0] = a[0][0].multiply(b[0][0]).add(a[0][1].multiply(b[1][0]));
-        c[0][1] = a[0][0].multiply(b[0][1]).add(a[0][1].multiply(b[1][1]));
-        c[1][0] = a[1][0].multiply(b[0][0]).add(a[1][1].multiply(b[1][0]));
-        c[1][1] = a[1][0].multiply(b[0][1]).add(a[1][1].multiply(b[1][1]));
-
-        MyBigInt[][] cBI = {
-                {new MyBigInt(c[0][0].toString()),new MyBigInt(c[0][1].toString())},
-                {new MyBigInt(c[1][0].toString()),new MyBigInt(c[1][1].toString())}
-        };
-
-        return cBI;
-    }
 
     public static MyBigInt[][] matrixMult(MyBigInt[][] a, MyBigInt[][] b){
         MyBigInt[][] c = new MyBigInt[2][2]; // Result
@@ -151,7 +158,7 @@ public class Main {
 
         MyBigInt plusOne = new MyBigInt("1"); // X
 
-        // If X >= 2, loop through X-2 times ??????????????
+        // If X >= 2, loop through X-2 times
         for(MyBigInt i = new MyBigInt("1"); X.greaterThan(i) == 1; i = i.Plus(plusOne)){
             c = a.Plus(b); // Sum previous two fibonacci values
             a = b; // X - 2 variable becomes X - 1 value for next loop
@@ -159,17 +166,6 @@ public class Main {
             //System.out.format("%s %s %d\n", X.value, i.value, X.greaterThan(i));
         }
         return c;
-    }
-    /** Get CPU time in nanoseconds since the program(thread) started. */
-    /** from: http://nadeausoftware.com/articles/2008/03/java_tip_how_get_cpu_and_user_time_benchmarking#TimingasinglethreadedtaskusingCPUsystemandusertime **/
-    public static long getCpuTime( ) {
-
-        ThreadMXBean bean = ManagementFactory.getThreadMXBean( );
-
-        return bean.isCurrentThreadCpuTimeSupported( ) ?
-
-                bean.getCurrentThreadCpuTime( ) : 0L;
-
     }
 
 }
@@ -181,6 +177,8 @@ class MyBigInt{
         MyBigInt a = new MyBigInt(this.value);
         int isGreater = 0;
 
+        // If the number is longer than the other, it is greater
+        // Otherwise, compare the largest place values to the smallest, the first with a larger value is greater
         if(a.value.length() > b.value.length()){
             isGreater = 1;
         }
@@ -196,62 +194,9 @@ class MyBigInt{
         return isGreater;
     }
 
-    MyBigInt Times3(MyBigInt b){
-        MyBigInt a = new MyBigInt(this.value);
 
-
-        // Prepend "0"s to the beginning of the value with the smaller digits
-        // to make both values the same # of digits long
-        /*if(a.value.length() < b.value.length()){
-            int diff = b.value.length() - a.value.length();
-
-            for(int i = 0; i < diff; i++)
-                a.value = "0"+ a.value;
-        }
-        else if(a.value.length() > b.value.length()){
-            int diff = a.value.length() - b.value.length();
-
-            for(int i = 0; i < diff; i++)
-                b.value = "0"+ b.value;
-        }*/
-
-        MyBigInt TimesCurrent = new MyBigInt("");
-        MyBigInt TimesSum = new MyBigInt("0");
-        MyBigInt resultC = new MyBigInt("");
-        int dA, dB, dC, carry = 0;
-
-
-        for(int i = a.value.length() - 1; i >=0; i--){
-
-            // Add zeroes for the place value of big int a at the i-th character
-            for(int z = a.value.length() - 1 - i; z > 0; z--)
-                TimesCurrent.value = "0" + TimesCurrent.value;
-
-            for(int j = b.value.length() - 1; j >=0; j--){
-                dA = convertToInt(a.value.charAt(i));
-                dB = convertToInt(b.value.charAt(j));
-                dC = dA * dB + carry;
-                carry = 0;
-                if(dC >= 10){
-                    carry = dC / 10;
-                    dC -= carry * 10;
-                }
-                // Prepend the result of the multiplication to the c string
-                TimesCurrent.value = convertToChar(dC) + TimesCurrent.value;
-            }
-            TimesSum = TimesSum.Plus(TimesCurrent);
-            TimesCurrent.value = "";
-        }
-        if(carry > 0)
-            TimesSum.value = convertToChar(carry) + TimesSum.value;
-
-        // Remove leading 0's while leaving at least 1 0
-        // Source - Top comment: https://stackoverflow.com/questions/2800739/how-to-remove-leading-zeros-from-alphanumeric-text
-        TimesSum.value = TimesSum.value.replaceFirst("^0+(?!$)", "");
-        return TimesSum;
-    }
     MyBigInt Times(MyBigInt b){
-        //MyBigInt a = new MyBigInt(this.value);
+
 
         MyBigInt TimesCurrent = new MyBigInt("");
         MyBigInt TimesSum = new MyBigInt("0");
@@ -263,9 +208,6 @@ class MyBigInt{
         int cLength = c.length();
 
         for(int i = aLength - 1; i >=0; i--){
-            // Add zeroes for the place value of big int a at the i-th character
-            //for(int z = a.value.length() - 1 - i; z > 0; z--)
-              //  TimesCurrent.value = "0" + TimesCurrent.value;
 
             for(j = bLength - 1; j >=0; j--){
                 dA = convertToInt(this.value.charAt(i));
@@ -277,31 +219,29 @@ class MyBigInt{
                     dC -= carry * 10;
                 }
                 // Prepend the result of the multiplication to the c string
-                //TimesCurrent.value = convertToChar(dC) + TimesCurrent.value;
                 sb.setCharAt(cLength - 1 - (aLength - 1 - i) - k,convertToChar(dC));
                 k++;
             }
+            // Add the carry
             if(carry > 0)
-                //TimesCurrent.value = convertToChar(carry) + TimesCurrent.value;
                 sb.setCharAt(cLength - 1 - (aLength - 1 - i) - k,convertToChar(carry));
+
+            // Clear carry and k
             carry = 0;
             k = 0;
+
+            // Set
             TimesCurrent.value = sb.toString();
             TimesSum = TimesSum.Plus(TimesCurrent);
-            //BigInteger TS = new BigInteger(TimesSum.Value());
-            //BigInteger TC = new BigInteger(TimesCurrent.Value());
-            //TS = TS.add(TC);
-            //TimesSum.value = TS.toString();
-            //TimesCurrent.value = "";
+
+            // Reset stringbuilder to the "zeroes" string c
             sb = new StringBuilder(c);
 
         }
-        //if(carry > 0)
-          //  TimesCurrent.value = convertToChar(carry) + TimesCurrent.value;
 
         // Remove leading 0's while leaving at least 1 0
         // Source - Top comment: https://stackoverflow.com/questions/2800739/how-to-remove-leading-zeros-from-alphanumeric-text
-        //TimesSum.value = TimesSum.value.replaceFirst("^0+(?!$)", "");
+        TimesSum.value = TimesSum.value.replaceFirst("^0+(?!$)", "");
         return TimesSum;
     }
     MyBigInt Plus(MyBigInt x){
@@ -311,7 +251,6 @@ class MyBigInt{
         // Prepend "0"s to the beginning of the value with the smaller digits
         // to make both values the same # of digits long
         String zeroes = "0".repeat(Math.max(a.length() - b.length(),b.length() - a.length()));
-        //StringBuilder sbZeroes = new StringBuilder()
         if(a.length() < b.length()){
             a = zeroes.concat(a);
 
@@ -320,22 +259,11 @@ class MyBigInt{
             b = zeroes.concat(b);
         }
 
-        /*if(a.length() < b.length()){
-            int diff = b.length() - a.length();
 
-            for(int i = 0; i < diff; i++)
-                a = "0" + a;
-        }
-        else if(a.length() > b.length()){
-            int diff = a.length() - b.length();
-
-            for(int i = 0; i < diff; i++)
-                b = "0" + b;
-        }*/
 
         int carry = 0;
         int dA, dB, dC;
-        String c = "0".repeat(Math.max(a.length(),b.length())+1);
+        String c = "0".repeat(Math.max(a.length(),b.length())+1); // string with max length filled with 0's
         StringBuilder sb = new StringBuilder(c);
         int i;
 
@@ -350,12 +278,10 @@ class MyBigInt{
                 dC -= 10;
             }
             // Prepend the result of the addition to the c string
-            //c = convertToString(dC).concat(c);
             sb.setCharAt(i+1,convertToChar(dC));
         }
         // If the last addition from the above loop has a carry, prepend it
         if(carry > 0)
-            //c = convertToString(carry).concat(c);
             sb.setCharAt(i+1,convertToChar(carry));
 
         // Create big int from result string c
@@ -368,19 +294,7 @@ class MyBigInt{
         return bigC;
 
     }
-    MyBigInt Plus2(MyBigInt x){
-        String a = this.value;
-        String b = x.value;
 
-        BigInteger aBI = new BigInteger(a);
-        BigInteger bBI = new BigInteger(b);
-        BigInteger cBI = aBI.add(bBI);
-
-        MyBigInt bigC = new MyBigInt(cBI.toString());
-
-        return bigC;
-
-    }
 
     MyBigInt(String a){
         this.value = a;
@@ -405,9 +319,7 @@ class MyBigInt{
     char convertToChar(int a){
         return (char)(a + 48);
     }
-    String convertToString(int a){
-        return String.valueOf(a + 48);
-    }
+
 }
 /* TESTING CODE
     MyBigInt a = new MyBigInt("925437632");
